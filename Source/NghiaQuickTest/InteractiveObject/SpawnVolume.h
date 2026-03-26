@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "InteractiveBaseObject.h"
 #include "SpawnVolume.generated.h"
 
 class UBoxComponent;
@@ -49,9 +50,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spawn")
 	TSubclassOf<ACharacter> AllowedCharacterClass;
 
-	/** Actor classes to randomly pick from when spawning */
+	/** Interactive object classes to randomly pick from when spawning */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spawn")
-	TArray<TSubclassOf<AActor>> SpawnableClasses;
+	TArray<TSubclassOf<AInteractiveBaseObject>> SpawnableClasses;
 
 	/** Number of objects to spawn */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spawn", meta=(ClampMin="1"))
@@ -64,4 +65,10 @@ protected:
 	/** If true, can only trigger once */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spawn")
 	bool bSpawnOnce;
+
+	// ---- Countdown ----
+
+	/** Countdown duration in seconds. Set 0 to disable countdown. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Countdown", meta=(ClampMin="0"))
+	float CountdownTime;
 };

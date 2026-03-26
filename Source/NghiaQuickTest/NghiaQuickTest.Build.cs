@@ -33,6 +33,7 @@ public class NghiaQuickTest : ModuleRules
 			"NghiaQuickTest/GAS/Abilities",
 			"NghiaQuickTest/GAS/Effects",
 			"NghiaQuickTest/InteractiveObject",
+			"NghiaQuickTest/Subsystem",
 			"NghiaQuickTest/Variant_Platforming",
 			"NghiaQuickTest/Variant_Platforming/Animation",
 			"NghiaQuickTest/Variant_Combat",

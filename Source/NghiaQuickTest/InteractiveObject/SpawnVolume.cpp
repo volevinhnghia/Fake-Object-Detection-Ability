@@ -3,6 +3,7 @@
 #include "SpawnVolume.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/Character.h"
+#include "CountdownSubsystem.h"
 
 ASpawnVolume::ASpawnVolume()
 {
@@ -11,6 +12,7 @@ ASpawnVolume::ASpawnVolume()
 	SpawnCount = 5;
 	bHasSpawned = false;
 	bSpawnOnce = true;
+	CountdownTime = 30.0f;
 
 	SpawnRegion = CreateDefaultSubobject<UBoxComponent>(TEXT("SpawnRegion"));
 	RootComponent = SpawnRegion;
@@ -52,6 +54,18 @@ void ASpawnVolume::OnVolumeBeginOverlap(UPrimitiveComponent* OverlappedComp, AAc
 
 	SpawnObjects();
 	bHasSpawned = true;
+
+	// Start countdown via subsystem
+	if (CountdownTime > 0.0f)
+	{
+		if (UGameInstance* GI = GetGameInstance())
+		{
+			if (UCountdownSubsystem* Countdown = GI->GetSubsystem<UCountdownSubsystem>())
+			{
+				Countdown->StartCountdown(CountdownTime);
+			}
+		}
+	}
 }
 
 void ASpawnVolume::SpawnObjects()
