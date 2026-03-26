@@ -9,10 +9,10 @@ ASpawnVolume::ASpawnVolume()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	SpawnCount = 5;
 	bHasSpawned = false;
 	bSpawnOnce = true;
 	CountdownTime = 30.0f;
+	RemainingCorrectCount = 0;
 
 	SpawnRegion = CreateDefaultSubobject<UBoxComponent>(TEXT("SpawnRegion"));
 	RootComponent = SpawnRegion;
@@ -81,24 +81,73 @@ void ASpawnVolume::SpawnObjects()
 		return;
 	}
 
-	for (int32 i = 0; i < SpawnCount; ++i)
+	RemainingCorrectCount = 0;
+	SpawnedObjects.Empty();
+
+	for (const auto& Pair : SpawnableClasses)
 	{
-		// Pick a random class from the array
-		const int32 RandomIndex = FMath::RandRange(0, SpawnableClasses.Num() - 1);
-		TSubclassOf<AActor> ClassToSpawn = SpawnableClasses[RandomIndex];
-		if (!ClassToSpawn)
+		TSubclassOf<AInteractiveBaseObject> ClassToSpawn = Pair.Key;
+		const int32 Count = Pair.Value;
+
+		if (!ClassToSpawn || Count <= 0)
 		{
 			continue;
 		}
 
-		FVector SpawnLocation;
-		if (GetRandomFloorLocation(SpawnLocation))
+		for (int32 i = 0; i < Count; ++i)
 		{
-			FActorSpawnParameters Params;
-			Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-			World->SpawnActor<AActor>(ClassToSpawn, SpawnLocation, FRotator::ZeroRotator, Params);
+			FVector SpawnLocation;
+			if (GetRandomFloorLocation(SpawnLocation))
+			{
+				FActorSpawnParameters Params;
+				Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+				AActor* Spawned = World->SpawnActor<AActor>(ClassToSpawn, SpawnLocation, FRotator::ZeroRotator, Params);
+
+				if (Spawned)
+				{
+					SpawnedObjects.Add(Spawned);
+				}
+
+				if (Spawned && CorrectClass && ClassToSpawn == CorrectClass)
+				{
+					++RemainingCorrectCount;
+					Spawned->OnDestroyed.AddDynamic(this, &ASpawnVolume::OnCorrectObjectDestroyed);
+				}
+			}
 		}
 	}
+}
+
+void ASpawnVolume::OnCorrectObjectDestroyed(AActor* DestroyedActor)
+{
+	--RemainingCorrectCount;
+
+	if (RemainingCorrectCount <= 0)
+	{
+		OnAllCorrectCollected();
+	}
+}
+
+void ASpawnVolume::OnAllCorrectCollected()
+{
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (UCountdownSubsystem* Countdown = GI->GetSubsystem<UCountdownSubsystem>())
+		{
+			Countdown->StopCountdown();
+		}
+	}
+
+	for (const TWeakObjectPtr<AActor>& Obj : SpawnedObjects)
+	{
+		if (AActor* Actor = Obj.Get())
+		{
+			Actor->Destroy();
+		}
+	}
+	SpawnedObjects.Empty();
+
+	Destroy();
 }
 
 bool ASpawnVolume::GetRandomFloorLocation(FVector& OutLocation) const

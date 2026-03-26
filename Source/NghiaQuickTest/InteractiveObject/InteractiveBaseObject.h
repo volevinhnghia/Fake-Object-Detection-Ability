@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "GameplayTagContainer.h"
 #include "RevealableInterface.h"
+#include "InteractableInterface.h"
 #include "InteractiveBaseObject.generated.h"
 
 class USphereComponent;
@@ -20,7 +21,7 @@ class UStaticMeshComponent;
  * Override OnInteract / OnEndInteract in Blueprint for custom behavior.
  */
 UCLASS(Blueprintable)
-class AInteractiveBaseObject : public AActor, public IRevealableInterface
+class AInteractiveBaseObject : public AActor, public IRevealableInterface, public IInteractableInterface
 {
 	GENERATED_BODY()
 
@@ -28,19 +29,11 @@ public:
 
 	AInteractiveBaseObject();
 
-	// ---- Interaction API (called by GA_Interact) ----
+	// ---- Interaction API (IInteractableInterface) ----
 
-	/** Called when a player begins interacting with this object */
-	UFUNCTION(BlueprintCallable, Category="Interaction")
-	virtual void Interact(AActor* Interactor);
-
-	/** Called when a player ends interaction with this object */
-	UFUNCTION(BlueprintCallable, Category="Interaction")
-	virtual void EndInteract(AActor* Interactor);
-
-	/** Returns true if this object can currently be interacted with */
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Interaction")
-	bool CanInteract(AActor* Interactor) const;
+	virtual void Interact_Implementation(AActor* Interactor) override;
+	virtual void EndInteract_Implementation(AActor* Interactor) override;
+	virtual bool CanInteract_Implementation(AActor* Interactor) const override;
 
 	/** Returns true if the given actor is currently inside the InteractionVolume */
 	UFUNCTION(BlueprintCallable, Category="Interaction")

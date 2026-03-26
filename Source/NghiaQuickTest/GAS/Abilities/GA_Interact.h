@@ -6,17 +6,12 @@
 #include "Abilities/GameplayAbility.h"
 #include "GA_Interact.generated.h"
 
-class AInteractiveBaseObject;
-
 /**
- * Gameplay Ability that allows the player to interact with InteractiveBaseObjects
- * that the player is currently overlapping (inside their InteractionVolume trigger).
+ * Gameplay Ability that allows the player to interact with actors
+ * implementing IInteractableInterface that the player is currently overlapping.
  *
  * No traces or sweeps — purely trigger-based.
- * Picks the closest overlapping InteractiveBaseObject that passes CanInteract().
- *
- * Add this ability to the character's DefaultAbilities array, then activate via
- * AbilitySystemComponent->TryActivateAbilityByClass(UGA_Interact::StaticClass()).
+ * Picks the closest overlapping interactable that passes CanInteract().
  */
 UCLASS()
 class UGA_Interact : public UGameplayAbility
@@ -31,6 +26,5 @@ public:
 
 protected:
 
-	/** Finds the closest InteractiveBaseObject that the player is currently overlapping */
-	AInteractiveBaseObject* FindClosestInteractable(AActor* AvatarActor) const;
+	AActor* FindClosestInteractable(AActor* AvatarActor) const;
 };

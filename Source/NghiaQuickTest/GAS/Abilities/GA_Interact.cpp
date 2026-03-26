@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "GA_Interact.h"
+#include "InteractableInterface.h"
 #include "InteractiveBaseObject.h"
 
 UGA_Interact::UGA_Interact()
@@ -24,44 +25,46 @@ void UGA_Interact::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 		return;
 	}
 
-	AInteractiveBaseObject* Target = FindClosestInteractable(AvatarActor);
+	AActor* Target = FindClosestInteractable(AvatarActor);
 	if (Target)
 	{
-		Target->Interact(AvatarActor);
+		IInteractableInterface::Execute_Interact(Target, AvatarActor);
 	}
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 }
 
-AInteractiveBaseObject* UGA_Interact::FindClosestInteractable(AActor* AvatarActor) const
+AActor* UGA_Interact::FindClosestInteractable(AActor* AvatarActor) const
 {
 	if (!AvatarActor)
 	{
 		return nullptr;
 	}
 
-	// Query actors that overlap the player — these are actors whose trigger volumes
-	// the player has entered. No traces or sweeps needed.
 	TArray<AActor*> OverlappingActors;
 	AvatarActor->GetOverlappingActors(OverlappingActors, AInteractiveBaseObject::StaticClass());
 
 	const FVector Origin = AvatarActor->GetActorLocation();
-	AInteractiveBaseObject* ClosestTarget = nullptr;
+	AActor* ClosestTarget = nullptr;
 	float ClosestDistSq = MAX_FLT;
 
 	for (AActor* Actor : OverlappingActors)
 	{
-		AInteractiveBaseObject* Interactive = Cast<AInteractiveBaseObject>(Actor);
-		if (!Interactive || !Interactive->CanInteract(AvatarActor))
+		if (!Actor->Implements<UInteractableInterface>())
 		{
 			continue;
 		}
 
-		const float DistSq = FVector::DistSquared(Origin, Interactive->GetActorLocation());
+		if (!IInteractableInterface::Execute_CanInteract(Actor, AvatarActor))
+		{
+			continue;
+		}
+
+		const float DistSq = FVector::DistSquared(Origin, Actor->GetActorLocation());
 		if (DistSq < ClosestDistSq)
 		{
 			ClosestDistSq = DistSq;
-			ClosestTarget = Interactive;
+			ClosestTarget = Actor;
 		}
 	}
 

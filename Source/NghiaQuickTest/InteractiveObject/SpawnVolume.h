@@ -14,8 +14,10 @@ class UBoxComponent;
  *
  * Blueprint-editable:
  *  - AllowedCharacterClass: which character class triggers the spawn
- *  - SpawnableClasses: array of actor classes to randomly pick from
- *  - SpawnCount: how many objects to spawn
+ *  - SpawnableClasses: map of object classes to spawn counts
+ *  - CorrectClass: the class the player must collect to clear the volume
+ *
+ * When all spawned objects of CorrectClass are collected (destroyed), the volume destroys itself.
  */
 UCLASS(Blueprintable)
 class ASpawnVolume : public AActor
@@ -31,11 +33,18 @@ protected:
 	UFUNCTION()
 	void OnVolumeBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	/** Spawn random objects on the floor inside the volume */
+	/** Spawn objects on the floor inside the volume based on SpawnableClasses map */
 	void SpawnObjects();
 
 	/** Get a random floor location inside the volume via line trace */
 	bool GetRandomFloorLocation(FVector& OutLocation) const;
+
+	/** Called when a tracked correct object is destroyed */
+	UFUNCTION()
+	void OnCorrectObjectDestroyed(AActor* DestroyedActor);
+
+	/** Called when all correct objects have been collected */
+	void OnAllCorrectCollected();
 
 protected:
 
@@ -50,13 +59,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spawn")
 	TSubclassOf<ACharacter> AllowedCharacterClass;
 
-	/** Interactive object classes to randomly pick from when spawning */
+	/** Map of interactive object classes to how many of each to spawn */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spawn")
-	TArray<TSubclassOf<AInteractiveBaseObject>> SpawnableClasses;
+	TMap<TSubclassOf<AInteractiveBaseObject>, int32> SpawnableClasses;
 
-	/** Number of objects to spawn */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spawn", meta=(ClampMin="1"))
-	int32 SpawnCount;
+	/** The class the player needs to collect. When all of this type are collected, the volume is cleared. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Spawn")
+	TSubclassOf<AInteractiveBaseObject> CorrectClass;
 
 	/** Whether this volume has already been triggered */
 	UPROPERTY(BlueprintReadOnly, Category="Spawn")
@@ -71,4 +80,12 @@ protected:
 	/** Countdown duration in seconds. Set 0 to disable countdown. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Countdown", meta=(ClampMin="0"))
 	float CountdownTime;
+
+private:
+
+	/** Number of correct objects still alive */
+	int32 RemainingCorrectCount;
+
+	/** All spawned objects tracked for cleanup */
+	TArray<TWeakObjectPtr<AActor>> SpawnedObjects;
 };

@@ -10,9 +10,9 @@ AInteractiveDamagePickup::AInteractiveDamagePickup()
 	DamageEffect = UGE_DamageHealth::StaticClass();
 }
 
-void AInteractiveDamagePickup::Interact(AActor* Interactor)
+void AInteractiveDamagePickup::Interact_Implementation(AActor* Interactor)
 {
-	if (!CanInteract(Interactor))
+	if (!IInteractableInterface::Execute_CanInteract(this, Interactor))
 	{
 		return;
 	}

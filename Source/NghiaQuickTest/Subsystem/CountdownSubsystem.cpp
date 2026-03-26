@@ -33,6 +33,11 @@ void UCountdownSubsystem::StartCountdown(float Duration)
 
 void UCountdownSubsystem::StopCountdown()
 {
+	if (!bIsActive)
+	{
+		return;
+	}
+
 	bIsActive = false;
 
 	UWorld* World = GetWorld();
@@ -40,6 +45,8 @@ void UCountdownSubsystem::StopCountdown()
 	{
 		World->GetTimerManager().ClearTimer(CountdownTimerHandle);
 	}
+
+	OnCountdownStopped.Broadcast();
 }
 
 void UCountdownSubsystem::Tick()

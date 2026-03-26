@@ -8,6 +8,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCountdownTick, float, RemainingTime);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCountdownFinished);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCountdownStopped);
 
 /**
  * Subsystem that manages a countdown timer.
@@ -43,6 +44,10 @@ public:
 	/** Fired when countdown reaches zero — bind this to kill the player */
 	UPROPERTY(BlueprintAssignable, Category="Countdown")
 	FOnCountdownFinished OnCountdownFinished;
+
+	/** Fired when countdown is manually stopped (e.g. all correct objects collected) */
+	UPROPERTY(BlueprintAssignable, Category="Countdown")
+	FOnCountdownStopped OnCountdownStopped;
 
 private:
 

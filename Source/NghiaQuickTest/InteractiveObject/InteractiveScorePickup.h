@@ -16,5 +16,5 @@ class AInteractiveScorePickup : public AInteractiveBaseObject
 
 public:
 
-	virtual void Interact(AActor* Interactor) override;
+	virtual void Interact_Implementation(AActor* Interactor) override;
 };

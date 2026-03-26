@@ -86,9 +86,9 @@ bool AInteractiveBaseObject::IsActorInRange(AActor* Actor) const
 	return false;
 }
 
-void AInteractiveBaseObject::Interact(AActor* Interactor)
+void AInteractiveBaseObject::Interact_Implementation(AActor* Interactor)
 {
-	if (!CanInteract(Interactor))
+	if (!IInteractableInterface::Execute_CanInteract(this, Interactor))
 	{
 		return;
 	}
@@ -97,7 +97,7 @@ void AInteractiveBaseObject::Interact(AActor* Interactor)
 	OnInteract(Interactor);
 }
 
-void AInteractiveBaseObject::EndInteract(AActor* Interactor)
+void AInteractiveBaseObject::EndInteract_Implementation(AActor* Interactor)
 {
 	if (CurrentInteractor.Get() == Interactor)
 	{
