@@ -17,7 +17,7 @@ void UCountdownSubsystem::StartCountdown(float Duration)
 	// Broadcast initial time
 	OnCountdownTick.Broadcast(RemainingTime);
 
-	// Tick every 1 second
+	// Tick every 1 secondBa
 	UWorld* World = GetWorld();
 	if (World)
 	{

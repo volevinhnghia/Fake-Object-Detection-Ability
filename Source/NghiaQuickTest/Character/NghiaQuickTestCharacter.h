@@ -87,6 +87,20 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Abilities")
 	TSubclassOf<UGameplayEffect> DefaultStatEffect;
 
+	// ---- Default Attribute Values (editable in Blueprint) ----
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Attributes")
+	float DefaultHealth;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Attributes")
+	float DefaultMaxHealth;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Attributes")
+	float DefaultMana;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Attributes")
+	float DefaultMaxMana;
+
 public:
 
 	/** Constructor */
@@ -98,6 +112,14 @@ public:
 	/** Returns the base attribute set */
 	UFUNCTION(BlueprintCallable, Category="Abilities")
 	UBaseAttributeSet* GetAttributeSet() const { return AttributeSet; }
+
+	/** Called when Health reaches zero — override in Blueprint for custom death */
+	UFUNCTION(BlueprintNativeEvent, Category="Abilities")
+	void OnDeath();
+
+	/** Sets Health to 0 through GAS, which triggers OnDeath */
+	UFUNCTION(BlueprintCallable, Category="Abilities")
+	void KillCharacter();
 
 protected:
 
@@ -116,6 +138,8 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
+
+	void OnHealthChanged(const struct FOnAttributeChangeData& Data);
 
 	/** Called when Interact input is pressed */
 	void OnInteractPressed();

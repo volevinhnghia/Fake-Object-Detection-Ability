@@ -56,6 +56,12 @@ ANghiaQuickTestCharacter::ANghiaQuickTestCharacter()
 	// Create the base attribute set (automatically registered with the ASC)
 	AttributeSet = CreateDefaultSubobject<UBaseAttributeSet>(TEXT("AttributeSet"));
 
+	// Default attribute values (editable in Blueprint)
+	DefaultHealth = 100.0f;
+	DefaultMaxHealth = 100.0f;
+	DefaultMana = 50.0f;
+	DefaultMaxMana = 50.0f;
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character)
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 }
@@ -74,6 +80,19 @@ void ANghiaQuickTestCharacter::BeginPlay()
 	{
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
 		GiveDefaultAbilities();
+
+		// Apply editable default attribute values
+		if (AttributeSet)
+		{
+			AttributeSet->InitHealth(DefaultHealth);
+			AttributeSet->InitMaxHealth(DefaultMaxHealth);
+			AttributeSet->InitMana(DefaultMana);
+			AttributeSet->InitMaxMana(DefaultMaxMana);
+		}
+
+		// Listen for Health reaching zero
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+			UBaseAttributeSet::GetHealthAttribute()).AddUObject(this, &ANghiaQuickTestCharacter::OnHealthChanged);
 
 		// Apply the optional initial stat effect (override default attribute values from Blueprint)
 		if (DefaultStatEffect)
@@ -218,5 +237,39 @@ void ANghiaQuickTestCharacter::OnRevealReleased()
 		{
 			AbilitySystemComponent->CancelAbilityHandle(Spec->Handle);
 		}
+	}
+}
+
+void ANghiaQuickTestCharacter::OnHealthChanged(const FOnAttributeChangeData& Data)
+{
+	if (Data.NewValue <= 0.0f)
+	{
+		OnDeath();
+	}
+}
+
+void ANghiaQuickTestCharacter::OnDeath_Implementation()
+{
+	DisableInput(Cast<APlayerController>(GetController()));
+}
+
+void ANghiaQuickTestCharacter::KillCharacter()
+{
+	if (AttributeSet && AbilitySystemComponent)
+	{
+		// Create instant GE that sets Health to 0
+		UGameplayEffect* KillEffect = NewObject<UGameplayEffect>(GetTransientPackage(), FName(TEXT("KillEffect")));
+		KillEffect->DurationPolicy = EGameplayEffectDurationType::Instant;
+
+		FGameplayModifierInfo Modifier;
+		Modifier.Attribute = UBaseAttributeSet::GetHealthAttribute();
+		Modifier.ModifierOp = EGameplayModOp::Override;
+		FScalableFloat ZeroValue;
+		ZeroValue.Value = 0.0f;
+		Modifier.ModifierMagnitude = FGameplayEffectModifierMagnitude(ZeroValue);
+		KillEffect->Modifiers.Add(Modifier);
+
+		FGameplayEffectContextHandle Context = AbilitySystemComponent->MakeEffectContext();
+		AbilitySystemComponent->ApplyGameplayEffectToSelf(KillEffect, 1, Context);
 	}
 }
