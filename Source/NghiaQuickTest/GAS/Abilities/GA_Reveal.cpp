@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "GA_Reveal.h"
+#include "RevealableInterface.h"
 #include "InteractiveBaseObject.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -15,18 +16,18 @@ void UGA_Reveal::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 	AActor* AvatarActor = ActorInfo ? ActorInfo->AvatarActor.Get() : nullptr;
-	SetAllInteractiveOutlines(AvatarActor, true);
+	SetRevealOnObjects(AvatarActor, true);
 }
 
 void UGA_Reveal::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	AActor* AvatarActor = ActorInfo ? ActorInfo->AvatarActor.Get() : nullptr;
-	SetAllInteractiveOutlines(AvatarActor, false);
+	ForceHideAllObjects(AvatarActor);
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void UGA_Reveal::SetAllInteractiveOutlines(AActor* AvatarActor, bool bEnabled)
+void UGA_Reveal::SetRevealOnObjects(AActor* AvatarActor, bool bEnabled)
 {
 	if (!AvatarActor)
 	{
@@ -44,9 +45,28 @@ void UGA_Reveal::SetAllInteractiveOutlines(AActor* AvatarActor, bool bEnabled)
 
 	for (AActor* Actor : FoundActors)
 	{
-		if (AInteractiveBaseObject* Interactive = Cast<AInteractiveBaseObject>(Actor))
-		{
-			Interactive->SetOutlineEnabled(bEnabled);
-		}
+		IRevealableInterface::Execute_SetRevealEnabled(Actor, bEnabled);
+	}
+}
+
+void UGA_Reveal::ForceHideAllObjects(AActor* AvatarActor)
+{
+	if (!AvatarActor)
+	{
+		return;
+	}
+
+	UWorld* World = AvatarActor->GetWorld();
+	if (!World)
+	{
+		return;
+	}
+
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(World, AInteractiveBaseObject::StaticClass(), FoundActors);
+
+	for (AActor* Actor : FoundActors)
+	{
+		IRevealableInterface::Execute_ForceHideReveal(Actor);
 	}
 }

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "GameplayTagContainer.h"
+#include "RevealableInterface.h"
 #include "InteractiveBaseObject.generated.h"
 
 class USphereComponent;
@@ -19,7 +20,7 @@ class UStaticMeshComponent;
  * Override OnInteract / OnEndInteract in Blueprint for custom behavior.
  */
 UCLASS(Blueprintable)
-class AInteractiveBaseObject : public AActor
+class AInteractiveBaseObject : public AActor, public IRevealableInterface
 {
 	GENERATED_BODY()
 
@@ -109,6 +110,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction")
 	bool bInteractionEnabled;
 
+	/** Whether GA_Reveal should affect this object */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction")
+	bool bShouldReveal;
+
 	/** The actor currently interacting with this object (nullptr if none) */
 	UPROPERTY(BlueprintReadOnly, Category="Interaction")
 	TWeakObjectPtr<AActor> CurrentInteractor;
@@ -118,19 +123,18 @@ protected:
 
 public:
 
-	// ---- Outline / Reveal API ----
+	// ---- Reveal API (IRevealableInterface) ----
 
-	/** Enable or disable outline rendering on this object's mesh (used by GA_Reveal) */
-	UFUNCTION(BlueprintCallable, Category="Interaction")
-	void SetOutlineEnabled(bool bEnabled);
+	virtual void SetRevealEnabled_Implementation(bool bEnabled) override;
+	virtual void ForceHideReveal_Implementation() override;
 
-	/** Returns true if the outline is currently enabled */
+	/** Returns true if the reveal visualization is currently active */
 	UFUNCTION(BlueprintCallable, Category="Interaction")
-	bool IsOutlineEnabled() const { return bOutlineEnabled; }
+	bool IsRevealEnabled() const { return bRevealEnabled; }
 
 protected:
 
-	/** Whether the outline is currently active */
+	/** Whether the reveal visualization is currently active */
 	UPROPERTY(BlueprintReadOnly, Category="Interaction")
-	bool bOutlineEnabled;
+	bool bRevealEnabled;
 };

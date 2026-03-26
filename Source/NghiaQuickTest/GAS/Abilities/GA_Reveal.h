@@ -7,13 +7,11 @@
 #include "GA_Reveal.generated.h"
 
 /**
- * Toggles outline rendering on all InteractiveBaseObject actors in the world.
- * When activated, enables custom depth on every interactive object's mesh.
- * When ended, disables the outline.
- *
- * Use a post-process material with Custom Depth / Stencil to render the outline.
+ * Shows the InteractionVolume of actors implementing IRevealableInterface
+ * that have bShouldReveal = true.
+ * On end, force-hides all revealable actors regardless of bShouldReveal.
  */
-UCLASS()
+UCLASS(Blueprintable)
 class UGA_Reveal : public UGameplayAbility
 {
 	GENERATED_BODY()
@@ -27,5 +25,6 @@ public:
 
 private:
 
-	void SetAllInteractiveOutlines(AActor* AvatarActor, bool bEnabled);
+	void SetRevealOnObjects(AActor* AvatarActor, bool bEnabled);
+	void ForceHideAllObjects(AActor* AvatarActor);
 };

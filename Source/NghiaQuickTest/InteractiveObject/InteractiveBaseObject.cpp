@@ -12,7 +12,8 @@ AInteractiveBaseObject::AInteractiveBaseObject()
 	// Defaults
 	InteractionRadius = 200.0f;
 	bInteractionEnabled = true;
-	bOutlineEnabled = false;
+	bShouldReveal = true;
+	bRevealEnabled = false;
 
 	// Root
 	SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
@@ -29,6 +30,7 @@ AInteractiveBaseObject::AInteractiveBaseObject()
 	InteractionVolume->SetSphereRadius(InteractionRadius);
 	InteractionVolume->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 	InteractionVolume->SetGenerateOverlapEvents(true);
+	InteractionVolume->SetHiddenInGame(true);
 
 	// Bind overlap events
 	InteractionVolume->OnComponentBeginOverlap.AddDynamic(this, &AInteractiveBaseObject::OnInteractionVolumeBeginOverlap);
@@ -104,14 +106,27 @@ void AInteractiveBaseObject::EndInteract(AActor* Interactor)
 	}
 }
 
-// ---- Outline / Reveal ----
+// ---- Reveal ----
 
-void AInteractiveBaseObject::SetOutlineEnabled(bool bEnabled)
+void AInteractiveBaseObject::SetRevealEnabled_Implementation(bool bEnabled)
 {
-	bOutlineEnabled = bEnabled;
-	if (MeshComponent)
+	if (!bShouldReveal)
 	{
-		MeshComponent->SetRenderCustomDepth(bEnabled);
-		MeshComponent->SetCustomDepthStencilValue(bEnabled ? 1 : 0);
+		return;
+	}
+
+	bRevealEnabled = bEnabled;
+	if (InteractionVolume)
+	{
+		InteractionVolume->SetHiddenInGame(!bEnabled);
+	}
+}
+
+void AInteractiveBaseObject::ForceHideReveal_Implementation()
+{
+	bRevealEnabled = false;
+	if (InteractionVolume)
+	{
+		InteractionVolume->SetHiddenInGame(true);
 	}
 }
