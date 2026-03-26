@@ -37,7 +37,7 @@ Q: Use Reveal skill for know what is real object
 ## Feature overview
 We have 2 type of interactive object
 
-![alt text](<Screenshot 2026-03-26 163635.png>)
+![alt text](<Screenshot 2026-03-26 163635-1.png>)
 
 For BP_InteractFake, it will trigger GE_DmgPickUp, and not reveal when we use skill reveal
 
