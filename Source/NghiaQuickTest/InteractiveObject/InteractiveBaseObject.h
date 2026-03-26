@@ -31,11 +31,11 @@ public:
 
 	/** Called when a player begins interacting with this object */
 	UFUNCTION(BlueprintCallable, Category="Interaction")
-	void Interact(AActor* Interactor);
+	virtual void Interact(AActor* Interactor);
 
 	/** Called when a player ends interaction with this object */
 	UFUNCTION(BlueprintCallable, Category="Interaction")
-	void EndInteract(AActor* Interactor);
+	virtual void EndInteract(AActor* Interactor);
 
 	/** Returns true if this object can currently be interacted with */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Interaction")
@@ -115,4 +115,22 @@ protected:
 
 	/** Actors currently inside the InteractionVolume trigger */
 	TArray<TWeakObjectPtr<AActor>> ActorsInRange;
+
+public:
+
+	// ---- Outline / Reveal API ----
+
+	/** Enable or disable outline rendering on this object's mesh (used by GA_Reveal) */
+	UFUNCTION(BlueprintCallable, Category="Interaction")
+	void SetOutlineEnabled(bool bEnabled);
+
+	/** Returns true if the outline is currently enabled */
+	UFUNCTION(BlueprintCallable, Category="Interaction")
+	bool IsOutlineEnabled() const { return bOutlineEnabled; }
+
+protected:
+
+	/** Whether the outline is currently active */
+	UPROPERTY(BlueprintReadOnly, Category="Interaction")
+	bool bOutlineEnabled;
 };

@@ -63,6 +63,22 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* MouseLookAction;
 
+	/** Interact Input Action (E key) */
+	UPROPERTY(EditAnywhere, Category="Input")
+	UInputAction* InteractAction;
+
+	/** Ability class activated by InteractAction */
+	UPROPERTY(EditAnywhere, Category="Input")
+	TSubclassOf<UGameplayAbility> InteractAbilityClass;
+
+	/** Reveal Input Action (Q key — hold to activate, release to cancel) */
+	UPROPERTY(EditAnywhere, Category="Input")
+	UInputAction* RevealAction;
+
+	/** Ability class activated by RevealAction */
+	UPROPERTY(EditAnywhere, Category="Input")
+	TSubclassOf<UGameplayAbility> RevealAbilityClass;
+
 	/** Default abilities granted to this character on BeginPlay */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Abilities")
 	TArray<TSubclassOf<UGameplayAbility>> DefaultAbilities;
@@ -100,6 +116,13 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
+
+	/** Called when Interact input is pressed */
+	void OnInteractPressed();
+
+	/** Called when Reveal input is pressed / released */
+	void OnRevealPressed();
+	void OnRevealReleased();
 
 public:
 

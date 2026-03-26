@@ -12,6 +12,7 @@ AInteractiveBaseObject::AInteractiveBaseObject()
 	// Defaults
 	InteractionRadius = 200.0f;
 	bInteractionEnabled = true;
+	bOutlineEnabled = false;
 
 	// Root
 	SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
@@ -100,5 +101,17 @@ void AInteractiveBaseObject::EndInteract(AActor* Interactor)
 	{
 		OnEndInteract(Interactor);
 		CurrentInteractor = nullptr;
+	}
+}
+
+// ---- Outline / Reveal ----
+
+void AInteractiveBaseObject::SetOutlineEnabled(bool bEnabled)
+{
+	bOutlineEnabled = bEnabled;
+	if (MeshComponent)
+	{
+		MeshComponent->SetRenderCustomDepth(bEnabled);
+		MeshComponent->SetCustomDepthStencilValue(bEnabled ? 1 : 0);
 	}
 }

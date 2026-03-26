@@ -76,7 +76,7 @@ void ANghiaQuickTestCharacter::BeginPlay()
 		GiveDefaultAbilities();
 
 		// Apply the optional initial stat effect (override default attribute values from Blueprint)
-		if (DefaultStatEffect && HasAuthority())
+		if (DefaultStatEffect)
 		{
 			FGameplayEffectContextHandle Context = AbilitySystemComponent->MakeEffectContext();
 			Context.AddSourceObject(this);
@@ -91,7 +91,7 @@ void ANghiaQuickTestCharacter::BeginPlay()
 
 void ANghiaQuickTestCharacter::GiveDefaultAbilities()
 {
-	if (!AbilitySystemComponent || !HasAuthority())
+	if (!AbilitySystemComponent)
 	{
 		return;
 	}
@@ -120,6 +120,13 @@ void ANghiaQuickTestCharacter::SetupPlayerInputComponent(UInputComponent* Player
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ANghiaQuickTestCharacter::Look);
+
+		// Interact (E)
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &ANghiaQuickTestCharacter::OnInteractPressed);
+
+		// Reveal (Q) — hold to reveal, release to stop
+		EnhancedInputComponent->BindAction(RevealAction, ETriggerEvent::Started, this, &ANghiaQuickTestCharacter::OnRevealPressed);
+		EnhancedInputComponent->BindAction(RevealAction, ETriggerEvent::Completed, this, &ANghiaQuickTestCharacter::OnRevealReleased);
 	}
 	else
 	{
@@ -185,4 +192,31 @@ void ANghiaQuickTestCharacter::DoJumpEnd()
 {
 	// signal the character to stop jumping
 	StopJumping();
+}
+
+void ANghiaQuickTestCharacter::OnInteractPressed()
+{
+	if (AbilitySystemComponent && InteractAbilityClass)
+	{
+		AbilitySystemComponent->TryActivateAbilityByClass(InteractAbilityClass);
+	}
+}
+
+void ANghiaQuickTestCharacter::OnRevealPressed()
+{
+	if (AbilitySystemComponent && RevealAbilityClass)
+	{
+		AbilitySystemComponent->TryActivateAbilityByClass(RevealAbilityClass);
+	}
+}
+
+void ANghiaQuickTestCharacter::OnRevealReleased()
+{
+	if (AbilitySystemComponent && RevealAbilityClass)
+	{
+		if (FGameplayAbilitySpec* Spec = AbilitySystemComponent->FindAbilitySpecFromClass(RevealAbilityClass))
+		{
+			AbilitySystemComponent->CancelAbilityHandle(Spec->Handle);
+		}
+	}
 }
