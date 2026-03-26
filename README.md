@@ -72,3 +72,5 @@ InteractiveBaseObject: Will interact with GA_Interact through interface, and tri
 *   Improve how GA_Reveal interact with object outline, currently just change collision "hidden in game" for confirm GA_Reveal work.
 
 *   Change how object random spawn for prevent overlap object.
+
+*   Update interactive system with Unreal Engine Smart IO system.
