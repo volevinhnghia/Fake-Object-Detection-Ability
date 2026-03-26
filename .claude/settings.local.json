@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(\"C:/Program Files/Epic Games/UE_5.6/Engine/Build/BatchFiles/Build.bat\" NghiaQuickTestEditor Win64 Development -Project=\"C:/Users/Admin/Documents/Unreal Projects/Fake-Object-Detection-Ability/NghiaQuickTest.uproject\" -WaitMutex -FromMsBuild 2>&1)",
+      "Bash(find 'C:\\\\Users\\\\Admin\\\\Documents\\\\Unreal Projects\\\\Fake-Object-Detection-Ability\\\\Source\\\\NghiaQuickTest\\\\Variant_Platforming' -type f \\\\\\(-name *.h -o -name *.cpp \\\\\\))",
+      "Bash(find 'C:\\\\Users\\\\Admin\\\\Documents\\\\Unreal Projects\\\\Fake-Object-Detection-Ability\\\\Source\\\\NghiaQuickTest\\\\Variant_SideScrolling' -type f \\\\\\(-name *.h -o -name *.cpp \\\\\\))",
+      "Bash(mv BaseAttributeSet.h BaseAttributeSet.cpp Attributes/)",
+      "Bash(mv GA_Interact.h GA_Interact.cpp Abilities/)",
+      "Bash(mv GE_DamageHealth.h GE_DamageHealth.cpp GE_CostMana.h GE_CostMana.cpp Effects/)"
+    ]
+  }
+}

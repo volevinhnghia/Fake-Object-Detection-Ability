@@ -18,13 +18,21 @@ public class NghiaQuickTest : ModuleRules
 			"StateTreeModule",
 			"GameplayStateTreeModule",
 			"UMG",
-			"Slate"
+			"Slate",
+			"GameplayAbilities",
+			"GameplayTags",
+			"GameplayTasks"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
 
 		PublicIncludePaths.AddRange(new string[] {
 			"NghiaQuickTest",
+			"NghiaQuickTest/GAS",
+			"NghiaQuickTest/GAS/Attributes",
+			"NghiaQuickTest/GAS/Abilities",
+			"NghiaQuickTest/GAS/Effects",
+			"NghiaQuickTest/InteractiveObject",
 			"NghiaQuickTest/Variant_Platforming",
 			"NghiaQuickTest/Variant_Platforming/Animation",
 			"NghiaQuickTest/Variant_Combat",
